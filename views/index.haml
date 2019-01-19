@@ -1,0 +1,22 @@
+%html
+  %h1 7 Days to Die Attributes and Perks
+  %h2 aaa
+  %form{action: 'get', action: '/'}
+    - ALL_PERKS.each do |attr, perks|
+      %p
+        = attr
+        %input{type: 'submit', value: "Take \"#{attr}\""}
+        %p
+        - perks.each do |perk|
+          %input{type: 'submit', value: "Take \"#{perk}\""}
+    %input{type: 'submit', value: 'Level up'}
+  %h2 Status
+  %dl
+    %dt Level
+    %dd
+      = @player.level
+    %dt Skill point
+    %dd
+      = @player.skill_point
+  %pre
+    = @player.description
