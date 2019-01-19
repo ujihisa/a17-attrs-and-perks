@@ -140,8 +140,6 @@ def apply_action(action, player)
     player.take_perk(action)
   when 'levelup'
     [player.level_up, nil]
-  when nil
-    [nil, nil]
   else
     raise NotImplementedError
   end
@@ -159,13 +157,15 @@ get '/' do
 
   # ignore params besides the first one for now
   action = params.keys.first
-  player, @error = apply_action(action, @player)
-  if @error
-    # nop
-  else
-    @player = player
-    @history << action
-    @flash = "#{action} succeeded."
+  if action
+    player, @error = apply_action(action, @player)
+    if @error
+      # nop
+    else
+      @player = player
+      @history << action
+      @flash = "#{action} succeeded."
+    end
   end
   haml :index, format: :html5
 end
