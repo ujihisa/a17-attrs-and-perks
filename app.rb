@@ -158,8 +158,14 @@ get '/' do
   end
 
   # ignore params besides the first one for now
-  player, @error = apply_action(params.keys.first, @player)
-  @player = player if player
-  @history << params.keys.first if player
+  action = params.keys.first
+  player, @error = apply_action(action, @player)
+  if @error
+    # nop
+  else
+    @player = player
+    @history << action
+    @flash = "#{action} succeeded."
+  end
   haml :index, format: :html5
 end

@@ -4,6 +4,7 @@
     %font{color: 'red'}
       %strong
         = @error
+  = @flash
   %form{method: 'get', action: '/'}
     %input{type: 'hidden', name: 'history', value: @history}
     - ALL_PERKS.each do |attr, perks|
@@ -14,6 +15,7 @@
         - perks.each do |perk|
           %input{type: 'submit', name: perk, value: "Take \"#{perk}\""}
     %input{type: 'submit', name: 'levelup', value: 'Level up'}
+    %input{type: 'number', disabled: true, name: 'levelup-num', value: 1}
   %h2 Status
   %dl
     %dt Level
