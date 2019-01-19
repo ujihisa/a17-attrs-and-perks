@@ -126,25 +126,33 @@ end
 # puts player.description
 
 
-
-get '/' do
-  @player = Player.new(1, 4, {PER: 1, STR: 1, FRT: 1, AGI: 1, INT: 1}, {})
-  @history = params[:history] || []
-  # ignore params besides the first one for now
-  case param_key = params.keys.first
+def apply_action(action, player)
+  case action
   when *ALL_PERKS.keys.map(&:to_s)
-    @player = @player.take_attr(param_key.to_sym)
-    @history << param_key
+    player.take_attr(action.to_sym)
   when *ALL_PERKS.values.flatten
-    @player = @player.take_perk(param_key)
-    @history << param_key
+    player.take_perk(action)
   when 'levelup'
-    @player = @player.level_up
-    @history << param_key
+    player.level_up
   when nil
     # nop
   else
     raise NotImplementedError
   end
+end
+
+get '/' do
+  @player = Player.new(1, 4, {PER: 1, STR: 1, FRT: 1, AGI: 1, INT: 1}, {})
+  @history = params.delete(:history)&.scan(/"([^"]+)"/)&.flatten(1) || []
+  raise 'Server error' if @history.size > 50
+  @history.each do |action|
+    player = apply_action(action, @player)
+    @player = player if player
+  end
+
+  # ignore params besides the first one for now
+  player = apply_action(params.keys.first, @player)
+  @player = player if player
+  @history << params.keys.first if player
   haml :index, format: :html5
 end

@@ -1,6 +1,7 @@
 %html
   %h1 7 Days to Die Attributes and Perks
   %form{method: 'get', action: '/'}
+    %input{type: 'hidden', name: 'history', value: @history}
     - ALL_PERKS.each do |attr, perks|
       %p
         = attr
