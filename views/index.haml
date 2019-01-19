@@ -31,5 +31,9 @@
         %li
           = action
   %hr
+  %p
+    プレイヤ情報共有用便利リンク
+    %input{type: 'text', value: "#{request.base_url}/?history=#{ERB::Util.url_encode(@history.inspect)}"}
+  %p
   %a{href: '/'}
     初期状態からやりなおす
