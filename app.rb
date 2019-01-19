@@ -129,5 +129,22 @@ end
 
 get '/' do
   @player = Player.new(1, 4, {PER: 1, STR: 1, FRT: 1, AGI: 1, INT: 1}, {})
+  @history = params[:history] || []
+  # ignore params besides the first one for now
+  case param_key = params.keys.first
+  when *ALL_PERKS.keys.map(&:to_s)
+    @player = @player.take_attr(param_key.to_sym)
+    @history << param_key
+  when *ALL_PERKS.values.flatten
+    @player = @player.take_perk(param_key)
+    @history << param_key
+  when 'levelup'
+    @player = @player.level_up
+    @history << param_key
+  when nil
+    # nop
+  else
+    raise NotImplementedError
+  end
   haml :index, format: :html5
 end

@@ -1,15 +1,14 @@
 %html
   %h1 7 Days to Die Attributes and Perks
-  %h2 aaa
-  %form{action: 'get', action: '/'}
+  %form{method: 'get', action: '/'}
     - ALL_PERKS.each do |attr, perks|
       %p
         = attr
-        %input{type: 'submit', value: "Take \"#{attr}\""}
+        %input{type: 'submit', name: attr, value: "Take \"#{attr}\""}
         %p
         - perks.each do |perk|
-          %input{type: 'submit', value: "Take \"#{perk}\""}
-    %input{type: 'submit', value: 'Level up'}
+          %input{type: 'submit', name: perk, value: "Take \"#{perk}\""}
+    %input{type: 'submit', name: 'levelup', value: 'Level up'}
   %h2 Status
   %dl
     %dt Level
@@ -20,3 +19,12 @@
       = @player.skill_point
   %pre
     = @player.description
+  - unless @history.empty?
+    %h2 History
+    %ul
+      - @history.each do |action|
+        %li
+          = action
+  %hr
+  %a{href: '/'}
+    初期状態からやりなおす
