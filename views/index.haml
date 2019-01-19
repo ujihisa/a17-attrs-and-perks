@@ -1,5 +1,9 @@
 %html
   %h1 7 Days to Die Attributes and Perks
+  - if @error
+    %font{color: 'red'}
+      %strong
+        = @error
   %form{method: 'get', action: '/'}
     %input{type: 'hidden', name: 'history', value: @history}
     - ALL_PERKS.each do |attr, perks|
@@ -22,7 +26,7 @@
     = @player.description
   - unless @history.empty?
     %h2 History
-    %ul
+    %ol
       - @history.each do |action|
         %li
           = action

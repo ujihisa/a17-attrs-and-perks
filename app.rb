@@ -49,32 +49,35 @@ Player = Struct.new(:level, :skill_point, :attrs, :perks) do
     Player.new(level + n, skill_point + n, attrs, perks)
   end
 
+  # returns one of them
+  #   [new_player, nil]
+  #   [nil, 'error message']
   def take_attr(attr_name)
     new_attr_level = attrs[attr_name] + 1
     if new_attr_level > 10
-      warn('Attr level beyond 10')
-      return nil
+      return [nil, "#{attr_name}: Attr level beyond 10"]
     end
     new_skill_point = skill_point - [0, 1, 1, 1, 2, 2, 3, 3, 4, 5][new_attr_level]
     if new_skill_point < 0
-      warn('Insufficient skill point')
-      return nil
+      return [nil, "#{attr_name}: Insufficient skill point"]
     end
-    Player.new(level, new_skill_point, attrs.merge(attr_name => new_attr_level), perks)
+    [Player.new(level, new_skill_point, attrs.merge(attr_name => new_attr_level), perks), nil]
   end
 
+  # returns one of them
+  #   [new_player, nil]
+  #   [nil, 'error message']
   def take_perk(perk_name)
     if self.skill_point <= 0
-      warn 'Insufficient skill point'
-      return nil
+      
+      return [nil, "#{perk_name}: Insufficient skill point"]
     end
     perk_level = perks[perk_name] || 0
     x = insufficiencies([perk_name, perk_level], self.attrs, self.level)
     if x
-      warn(x)
-      nil
+      [nil, x]
     else
-      Player.new(level, skill_point - 1, attrs, perks.merge(perk_name => perk_level + 1))
+      [Player.new(level, skill_point - 1, attrs, perks.merge(perk_name => perk_level + 1)), nil]
     end
   end
 
@@ -117,15 +120,18 @@ end
 # p player = player&.take_perk('Gunslinger')
 # p player = player&.take_perk('Gunslinger')
 # p player = player&.take_perk('Skull Crusher')
-# p player = player&.take_attr(:PER)
+# p player, _ = player&.take_attr(:PER)
 # p player = player&.level_up
-# p player = player&.take_attr(:PER)
+# p player, _ = player&.take_attr(:PER)
 # p player = player&.level_up
 # p player = player&.take_perk('Gunslinger')
 # # p player = player&.take_perk('Gunslinger')
 # puts player.description
 
 
+# returns one of them
+#   [new_player, nil]
+#   [nil, error_message]
 def apply_action(action, player)
   case action
   when *ALL_PERKS.keys.map(&:to_s)
@@ -133,9 +139,9 @@ def apply_action(action, player)
   when *ALL_PERKS.values.flatten
     player.take_perk(action)
   when 'levelup'
-    player.level_up
+    [player.level_up, nil]
   when nil
-    # nop
+    [nil, nil]
   else
     raise NotImplementedError
   end
@@ -146,12 +152,13 @@ get '/' do
   @history = params.delete(:history)&.scan(/"([^"]+)"/)&.flatten(1) || []
   raise 'Server error' if @history.size > 50
   @history.each do |action|
-    player = apply_action(action, @player)
+    # errors shouldn't occur
+    player, _ = apply_action(action, @player)
     @player = player if player
   end
 
   # ignore params besides the first one for now
-  player = apply_action(params.keys.first, @player)
+  player, @error = apply_action(params.keys.first, @player)
   @player = player if player
   @history << params.keys.first if player
   haml :index, format: :html5
